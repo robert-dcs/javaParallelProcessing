@@ -3,11 +3,8 @@ package org.example;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DbConnection {
     public DbConnection() {
@@ -28,13 +25,13 @@ public class DbConnection {
     public static Connection connect() throws SQLException {
         return ds.getConnection();
     }
-    public static void insertPeople(String person, Connection conn) throws SQLException {
+    public static void insertPerson(String person) throws SQLException {
+        Connection conn = connect();
         try  {
             PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO persons (name) VALUES (?)");
             preparedStatement.setString(1, person);
             preparedStatement.executeUpdate();
             preparedStatement.close();
-
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -43,19 +40,20 @@ public class DbConnection {
             if (conn != null) {
                 conn.close();
             }else {
-                System.out.println("Nem tem conexao nessabosta");
+                System.out.println("Without connection");
             }
         }
     }
 
-    public static  void cleanDatabase(Connection conn) {
+    public static  void cleanDatabase() throws SQLException {
+        Connection conn = connect();
         try  {
             PreparedStatement preparedStatement = conn.prepareStatement("DROP TABLE IF EXISTS persons");
             preparedStatement.executeUpdate();
             preparedStatement = conn.prepareStatement("CREATE TABLE persons(id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL)");
             preparedStatement.executeUpdate();
             preparedStatement.close();
-            System.out.println("Database clean");
+            System.out.println("Database dropped and created");
             conn.close();
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());

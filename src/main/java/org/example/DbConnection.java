@@ -28,7 +28,7 @@ public class DbConnection {
     public static void insertPerson(String person) throws SQLException {
         Connection conn = connect();
         try  {
-            PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO persons (name) VALUES (?)");
+            PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO person(name) VALUES (?)");
             preparedStatement.setString(1, person);
             preparedStatement.executeUpdate();
             preparedStatement.close();
@@ -48,9 +48,9 @@ public class DbConnection {
     public static  void cleanDatabase() throws SQLException {
         Connection conn = connect();
         try  {
-            PreparedStatement preparedStatement = conn.prepareStatement("DROP TABLE IF EXISTS persons");
+            PreparedStatement preparedStatement = conn.prepareStatement("DROP TABLE IF EXISTS person");
             preparedStatement.executeUpdate();
-            preparedStatement = conn.prepareStatement("CREATE TABLE persons(id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL)");
+            preparedStatement = conn.prepareStatement("CREATE TABLE person(id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL)");
             preparedStatement.executeUpdate();
             preparedStatement.close();
             System.out.println("Database dropped and created");

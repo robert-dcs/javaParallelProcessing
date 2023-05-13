@@ -19,32 +19,30 @@ public class Main {
         List<String> listOfPeople = new ArrayList<>();
 
         try {
-            XSSFWorkbook workbook = (XSSFWorkbook) WorkbookFactory.create(new FileInputStream("sample/data1000000.xlsx"));
+            XSSFWorkbook workbook = (XSSFWorkbook) WorkbookFactory.create(new FileInputStream("sample/data1000.xlsx"));
             Sheet sheetAlunos = workbook.getSheetAt(0);
 
-            Iterator<Row> rowIterator = sheetAlunos.iterator();
-
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
+            for (Row row : sheetAlunos) {
                 Iterator<Cell> cellIterator = row.cellIterator();
+
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
-                    switch (cell.getColumnIndex()) {
-                        case 0:
-                            listOfPeople.add(cell.getStringCellValue());
-                            break;
+                    if (cell.getColumnIndex() == 0) {
+                        listOfPeople.add(cell.getStringCellValue());
                     }
                 }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+
+
             System.out.println("File not found");
         }
 
         System.out.println("First record from sample: " + listOfPeople.get(0));
         System.out.println("Last record from sample: " + (listOfPeople.get(listOfPeople.size()-1)));
 
-        synchronousProcessing(listOfPeople);
+//        synchronousProcessing(listOfPeople);
         parallelProcessing(listOfPeople);
     }
 
@@ -60,7 +58,7 @@ public class Main {
         });
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("Synchronous implementation took " + elapsedTime + " milliseconds and processed " + listOfPeople.size() + " records.");
+        System.out.println("[Java] Synchronous implementation took " + elapsedTime + " milliseconds and processed " + listOfPeople.size() + " records.");
     }
 
 
@@ -77,6 +75,6 @@ public class Main {
         });
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("Parallel implementation took " + elapsedTime + " milliseconds and processed " + listOfPeople.size() + " records.");
+        System.out.println("[Java] Parallel implementation took " + elapsedTime + " milliseconds and processed " + listOfPeople.size() + " records.");
     }
 }

@@ -42,7 +42,7 @@ public class Main {
         System.out.println("First record from sample: " + listOfPeople.get(0));
         System.out.println("Last record from sample: " + (listOfPeople.get(listOfPeople.size()-1)));
 
-//        synchronousProcessing(listOfPeople);
+        synchronousProcessing(listOfPeople);
         parallelProcessing(listOfPeople);
     }
 
@@ -58,7 +58,8 @@ public class Main {
         });
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("[Java] Synchronous implementation took " + elapsedTime + " milliseconds and processed " + listOfPeople.size() + " records.");
+        System.out.println("[Java] Synchronous implementation took " + elapsedTime + " milliseconds." );
+        System.out.println("[Java] Processed " + listOfPeople.size() + " records.");
     }
 
 
@@ -75,6 +76,7 @@ public class Main {
         });
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("[Java] Parallel implementation took " + elapsedTime + " milliseconds and processed " + listOfPeople.size() + " records.");
+        System.out.println("[Java] Parallel implementation took " + elapsedTime + " milliseconds." );
+        System.out.println("[Java] Processed " + listOfPeople.size() + " records.");
     }
 }

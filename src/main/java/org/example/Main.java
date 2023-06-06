@@ -42,7 +42,7 @@ public class Main {
         System.out.println("First record from sample: " + listOfPeople.get(0));
         System.out.println("Last record from sample: " + (listOfPeople.get(listOfPeople.size()-1)));
 
-        synchronousProcessing(listOfPeople);
+//        synchronousProcessing(listOfPeople);
         parallelProcessing(listOfPeople);
     }
 
@@ -67,7 +67,7 @@ public class Main {
     static void parallelProcessing(List<String> listOfPeople) throws SQLException {
         DbConnection.cleanDatabase();
         long startTime = System.currentTimeMillis();
-        listOfPeople.stream().parallel().forEach(person -> {
+        listOfPeople.parallelStream().forEach(person -> {
             try {
                 DbConnection.insertPerson(person);
             } catch (SQLException e) {

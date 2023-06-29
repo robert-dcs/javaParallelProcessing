@@ -13,16 +13,22 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 public class Main {
     public static void main(String[] args) throws IOException, SQLException {
+        int sampleSize = 1000000;
+
         List<String> listOfPeople = new ArrayList<>();
 
         try {
-            XSSFWorkbook workbook = (XSSFWorkbook) WorkbookFactory.create(new FileInputStream("sample/data1000.xlsx"));
-            Sheet sheetAlunos = workbook.getSheetAt(0);
+            XSSFWorkbook workbook = (XSSFWorkbook) WorkbookFactory.create(new FileInputStream("sample/data"+sampleSize+".xlsx"));
+            Sheet sheet = workbook.getSheetAt(0);
 
-            for (Row row : sheetAlunos) {
+            for (Row row : sheet) {
                 Iterator<Cell> cellIterator = row.cellIterator();
 
                 while (cellIterator.hasNext()) {
@@ -40,10 +46,12 @@ public class Main {
         }
 
         System.out.println("First record from sample: " + listOfPeople.get(0));
-        System.out.println("Last record from sample: " + (listOfPeople.get(listOfPeople.size()-1)));
+        System.out.println("Last record from sample: " + (listOfPeople.get(listOfPeople.size() - 1)));
 
-//        synchronousProcessing(listOfPeople);
-        parallelProcessing(listOfPeople);
+//                synchronousProcessing(listOfPeople);
+//                parallelProcessing(listOfPeople);
+//        parallelProcessing2(listOfPeople);
+                parallelProcessing3(listOfPeople);
     }
 
     static void synchronousProcessing(List<String> listOfPeople) throws SQLException {
@@ -76,7 +84,45 @@ public class Main {
         });
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("[Java] Parallel implementation took " + elapsedTime + " milliseconds." );
+        System.out.println("[Java] Parallel implementation 1 took " + elapsedTime + " milliseconds." );
+        System.out.println("[Java] Processed " + listOfPeople.size() + " records.");
+    }
+
+    static void parallelProcessing2(List<String> listOfPeople) throws SQLException {
+        DbConnection.cleanDatabase();
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        long startTime = System.currentTimeMillis();
+        try {
+            List<CompletableFuture<Void>> futures = listOfPeople.stream()
+                    .map(person -> CompletableFuture.runAsync(() -> {
+                        try {
+                            DbConnection.insertPerson(person);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, executor))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            executor.shutdown();
+        }
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("[Java] Parallel implementation 2 took " + elapsedTime + " milliseconds." );
+        System.out.println("[Java] Processed " + listOfPeople.size() + " records.");
+    }
+
+    static void parallelProcessing3(List<String> listOfPeople) throws SQLException {
+        DbConnection.cleanDatabase();
+        long startTime = System.currentTimeMillis();
+        ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+        forkJoinPool.invoke(new  ParallelProcessor(listOfPeople));
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("[Java] Parallel implementation 3 took " + elapsedTime + " milliseconds." );
         System.out.println("[Java] Processed " + listOfPeople.size() + " records.");
     }
 }

@@ -48,10 +48,10 @@ public class Main {
         System.out.println("First record from sample: " + listOfPeople.get(0));
         System.out.println("Last record from sample: " + (listOfPeople.get(listOfPeople.size() - 1)));
 
-//                synchronousProcessing(listOfPeople);
-//                parallelProcessing(listOfPeople);
-//        parallelProcessing2(listOfPeople);
-                parallelProcessing3(listOfPeople);
+        synchronousProcessing(listOfPeople);
+        parallelProcessing(listOfPeople);
+        parallelProcessing2(listOfPeople);
+        parallelProcessing3(listOfPeople);
     }
 
     static void synchronousProcessing(List<String> listOfPeople) throws SQLException {
